@@ -55,19 +55,28 @@ export class Scene {
     effect((onCleanup) => {
       const globe = this.globeRef.nativeElement;
       if (!globe) return;
-      globe
-        .globeImageUrl("//unpkg.com/three-globe/example/img/earth-dark.jpg")
-        .bumpImageUrl("//unpkg.com/three-globe/example/img/earth-topology.png")
-        .pointsData(gData)
-        .pointAltitude("size")
-        .pointColor("color");
+      fetch("/assets/countries.geojson")
+        .then((res) => res.json())
+        .then((countries) => {
+          globe
+            .globeImageUrl("//unpkg.com/three-globe/example/img/earth-dark.jpg")
+            .hexPolygonsData(countries.features)
+            .hexPolygonResolution(3)
+            .hexPolygonMargin(0.3)
+            .hexPolygonColor(
+              () =>
+                `#${Math.round(Math.random() * Math.pow(2, 24))
+                  .toString(16)
+                  .padStart(6, "0")}`
+            );
+        });
 
-      const id = setTimeout(() => {
-        gData.forEach((d) => (d.size = Math.random()));
-        globe.pointsData(gData);
-      }, 4000);
-
-      onCleanup(() => clearTimeout(id));
+      // const id = setTimeout(() => {
+      //   gData.forEach((d) => (d.size = Math.random()));
+      //   globe.pointsData(gData);
+      // }, 4000);
+      //
+      // onCleanup(() => clearTimeout(id));
     });
   }
 }
